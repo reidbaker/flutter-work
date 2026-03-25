@@ -24,4 +24,4 @@ We encourage contributors to follow these practices when authoring skills, thoug
 * **Provide Novel Information**: Tell the agent what it *needs* to know, not what it already knows.
 * **One Skill Per CLI Tool**: Create a dedicated skill for each CLI tool. This helps effectively steer the agent on how you want to use it.
 * **Structure and Rules**: Be extremely strict about your style. The more structured and rule-based your instructions are (with a limited number of exceptions), the better. Agents have an exponential reward function for structure.
-* **Read-Only Mode**: When appropriate, tell agents how to access real data strictly in read-only mode to prevent unintended changes. 
+* **Read-Only Mode**: When appropriate, tell agents how to access real data strictly in read-only mode to prevent unintended changes.
