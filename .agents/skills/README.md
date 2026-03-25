@@ -1,6 +1,6 @@
 # Flutter Agent Skills
 
-Welcome to the `.agent/skills` directory. This directory contains agent skills designed for consumption by Flutter contributors. 
+Welcome to the `.agent/skills` directory. This directory contains agent skills designed for consumption by Flutter contributors.
 
 ## Requirements for New Skill Adoption
 
@@ -14,7 +14,7 @@ Before landing an initial skill in this shared codebase, the following requireme
 
 ## Ownership and Responsibilities
 
-* **Ownership**: The author of the skill holds ownership. This means the author is responsible for approving any modifications to the skill and mitigating any negative side effects. 
+* **Ownership**: The author of the skill holds ownership. This means the author is responsible for approving any modifications to the skill and mitigating any negative side effects.
 * **Succession**: If the author can no longer maintain the skill, the author or their manager is responsible for finding a new owner.
 
 ## Recommended Practices
