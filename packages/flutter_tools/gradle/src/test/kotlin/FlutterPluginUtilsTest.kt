@@ -1064,15 +1064,6 @@ class FlutterPluginUtilsTest {
         every {
             project.tasks.register("printBuildVariants", any<Class<PrintTaskDeferred<ExtensionContainer>>>(), capture(captureSlot))
         } returns mockTaskProvider
-        every { project.provider<PrintTaskDeferred<ExtensionContainer>>(any()) } returns mockTaskProvider
-        every { mockTaskProvider.configure(any()).hint(PrintTaskDeferred::class) }
-
-        val androidComponents = mockk<AndroidComponentsExtension<*, *, *>>(relaxed = true)
-        val listProperty = mockk<org.gradle.api.provider.ListProperty<String>>()
-        every { project.extensions.getByType(AndroidComponentsExtension::class.java) } returns androidComponents
-        every { project.objects.listProperty(String::class.java) } returns listProperty
-        every { project.tasks.register(any(), any<Action<Task>>()) } returns mockk()
-        val captureSlot = slot<Action<Task>>()
 
         FlutterPluginUtils.addTaskForPrintBuildVariants(project)
         captureSlot.captured.execute(mockPrintTask)
