@@ -53,5 +53,5 @@
 /packages/flutter_tools/**/*windows* @flutter/windows-reviewers
 
 # Skills owners
-.agents/skills @reidbaker # Fallaback owners
+.agents/skills @reidbaker # Fallback owners
 .agents/skills/find-release @reidbaker
