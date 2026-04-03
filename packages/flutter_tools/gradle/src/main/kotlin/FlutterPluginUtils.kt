@@ -778,20 +778,25 @@ object FlutterPluginUtils {
     @JvmStatic
     @JvmName("addTaskForPrintBuildVariants")
     internal fun addTaskForPrintBuildVariants(project: Project) {
-        project.tasks.register<PrintTaskDeferred<ExtensionContainer>>("printBuildVariants") {
-            description = "Prints out all build variants for this Android project"
-            closureInput = project.extensions
-            messageClosure = ::createPrintBuildVariantsString
-        }
-    }
+        val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
+        val variantsList = project.objects.listProperty(String::class.java)
 
-    internal fun createPrintBuildVariantsString(extensions: ExtensionContainer): String {
-        val androidComponents = extensions.getByType(AndroidComponentsExtension::class.java)
-        val messageBuilder = StringBuilder()
+        // Collect variant names during configuration phase to avoid lifecycle violations
         androidComponents.onVariants { variant ->
-            messageBuilder.append("BuildVariant: ${variant.name}\n")
+            variantsList.add(variant.name)
         }
-        return messageBuilder.toString()
+
+        project.tasks.register<PrintTaskDeferred<org.gradle.api.provider.ListProperty<String>>>("printBuildVariants") {
+            description = "Prints out all build variants for this Android project"
+            closureInput = variantsList
+            messageClosure = { listProp ->
+                val messageBuilder = StringBuilder()
+                listProp.get().forEach { name ->
+                    messageBuilder.append("BuildVariant: $name\n")
+                }
+                messageBuilder.toString()
+            }
+        }
     }
 
     // TODO(gmackall): Migrate to AGPs variant api.
