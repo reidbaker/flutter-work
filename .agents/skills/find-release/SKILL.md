@@ -7,7 +7,7 @@ description: A skill to find the lowest Dart and Flutter release containing a gi
 
 1.  **Extract Information:**
     - Identify the commit SHA from the user's request (e.g., `02abc57`).
-    - Identify the target channel (one of: `stable`, `beta`, `dev`). If not specified, default to `stable`.
+    - Identify the target channel (one of: `stable`, `beta`, `dev`). If not specified, try each.
 
 2.  **Execute Search:**
     - Ensure the `find_release.dart` tool is available. The tool is typically located at `engine/src/flutter/third_party/dart/tools/find_release.dart` relative to the Flutter workspace root. If the workspace root is not the default, set the environment variable `FIND_RELEASE_TOOL_PATH` to the absolute path of the tool.
