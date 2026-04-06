@@ -1068,7 +1068,11 @@ class FlutterPluginUtilsTest {
         val captureSlot = slot<Action<PrintTaskDeferred<org.gradle.api.provider.ListProperty<String>>>>()
 
         every {
-            project.tasks.register("printBuildVariants", any<Class<PrintTaskDeferred<org.gradle.api.provider.ListProperty<String>>>>(), capture(captureSlot))
+            project.tasks.register(
+                "printBuildVariants",
+                any<Class<PrintTaskDeferred<org.gradle.api.provider.ListProperty<String>>>>(),
+                capture(captureSlot)
+            )
         } returns mockTaskProvider
 
         FlutterPluginUtils.addTaskForPrintBuildVariants(project)

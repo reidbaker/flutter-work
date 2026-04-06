@@ -6,7 +6,6 @@ package com.flutter.gradle
 
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.ApplicationExtension
-import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.BaseExtension
@@ -23,7 +22,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.logging.Logger
-import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.kotlin.dsl.register
 import java.io.File
 import java.nio.charset.StandardCharsets
