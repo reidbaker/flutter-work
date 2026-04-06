@@ -28,10 +28,10 @@ We encourage contributors to follow these practices when authoring skills, thoug
 * **Dart Scripts**: Scripts should be written in Dart.
 
 # How to help
-If you are a regular contributor and you are looking for areas where you can author a skill the following areas are good places to start.
+If you are a regular contributor looking for areas where you can author a skill, the following are good places to start:
 
-* When to use a command line tool from the repo, its arguments and how to interpret its outputs.
+* When to use a command line tool from the repo, its arguments, and how to interpret its outputs.
 * How to run a particular set of tests.
-* How to run analyzer or linters that have repo specific configuration.
+* How to run the analyzer or linters that have repo-specific configuration.
 * Productization steps that are required after modifying some area of code.
 * How to debug or differentiate a common class of issues.
