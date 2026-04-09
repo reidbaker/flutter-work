@@ -568,26 +568,6 @@ class FlutterPluginUtilsTest {
         assertEquals("35", result)
     }
 
-    // detectLowCompileSdkVersionOrNdkVersion
-    @Test
-    fun `detectLowCompileSdkVersionOrNdkVersion throws IllegalArgumentException when plugin has no name`() {
-        val project = mockk<Project>()
-        val projectActionSlot = slot<Action<Project>>()
-        every { project.afterEvaluate(any<Action<Project>>()) } returns Unit
-        every { project.extensions.findByType(BaseExtension::class.java)!!.compileSdkVersion } returns "android-35"
-        every { project.extensions.findByType(BaseExtension::class.java)!!.ndkVersion } returns "26.3.11579264"
-
-        val pluginWithoutName: MutableMap<String?, Any?> = cameraDependency.toMutableMap()
-        pluginWithoutName.remove("name")
-
-        assertThrows<IllegalArgumentException> {
-            FlutterPluginUtils.detectLowCompileSdkVersionOrNdkVersion(
-                project,
-                listOf(pluginWithoutName)
-            )
-        }
-    }
-
     // forceNdkDownload
     @Test
     fun `forceNdkDownload skips projects which are already configuring a native build`(

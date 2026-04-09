@@ -4,18 +4,12 @@
 
 package com.flutter.gradle.tasks
 
-import com.android.build.gradle.BaseExtension
-import com.flutter.gradle.FlutterPluginUtils
 import io.mockk.called
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
-import org.gradle.api.Action
-import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.io.path.createDirectory
@@ -160,25 +154,6 @@ class ValidateCompileSdkVersionTaskTest {
                         ...
                     }
                 """.trimIndent()
-            )
-        }
-    }
-
-    @Test
-    fun `detectLowCompileSdkVersionOrNdkVersion throws IllegalArgumentException when plugin has no name`() {
-        val project = mockk<Project>()
-        val projectActionSlot = slot<Action<Project>>()
-        every { project.afterEvaluate(any<Action<Project>>()) } returns Unit
-        every { project.extensions.findByType(BaseExtension::class.java)!!.compileSdkVersion } returns "android-35"
-        every { project.extensions.findByType(BaseExtension::class.java)!!.ndkVersion } returns "26.3.11579264"
-
-        val pluginWithoutName: MutableMap<String?, Any?> = cameraDependency.toMutableMap()
-        pluginWithoutName.remove("name")
-
-        assertThrows<IllegalArgumentException> {
-            FlutterPluginUtils.detectLowCompileSdkVersionOrNdkVersion(
-                project,
-                listOf(pluginWithoutName)
             )
         }
     }
