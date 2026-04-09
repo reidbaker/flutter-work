@@ -6,7 +6,6 @@ package com.flutter.gradle
 
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.ApplicationExtension
-import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.BaseExtension
@@ -460,9 +459,6 @@ object FlutterPluginUtils {
         project: Project,
         pluginList: List<Map<String?, Any?>>
     ) {
-        pluginList.forEach { plugin ->
-            requireNotNull(plugin["name"] as? String) { "Missing valid \"name\" property for plugin object: $plugin" }
-        }
         val validateTask =
             project.tasks.register("validateCompileSdkVersion", ValidateCompileSdkVersionTask::class.java) {
                 val pluginSdks = project.objects.mapProperty(String::class.java, Int::class.java)
@@ -474,15 +470,17 @@ object FlutterPluginUtils {
                     if (pluginProject != null) {
                         val pluginCompileSdkProvider =
                             project.provider {
-                                val extension = pluginProject.extensions.findByName("android") as? CommonExtension<*, *, *, *, *, *>
-                                extension?.compileSdk ?: Int.MAX_VALUE
+                                getAndroidExtension(pluginProject)?.compileSdk ?: Int.MAX_VALUE
                             }
                         pluginSdks.put(name, pluginCompileSdkProvider)
 
                         val pluginNdkProvider =
                             project.provider {
-                                val extension = pluginProject.extensions.findByName("android") as? CommonExtension<*, *, *, *, *, *>
-                                extension?.ndkVersion ?: "21.1.6352462"
+                                // This value pior to AGP 8.2 was nullable.
+                                // That was a reasonable signal that a plugin had specified a
+                                // an NDK version. Starting at AGP 8.2 this triggers false positives.
+                                // See: https://github.com/flutter/flutter/issues/139427#issuecomment-4196799498
+                                getAndroidExtension(pluginProject).ndkVersion
                             }
                         pluginNdks.put(name, pluginNdkProvider)
                     }
@@ -497,7 +495,7 @@ object FlutterPluginUtils {
             val extension = getAndroidExtension(project)
             project.tasks.named("validateCompileSdkVersion", ValidateCompileSdkVersionTask::class.java).configure {
                 projectCompileSdk.set(extension.compileSdk ?: Int.MAX_VALUE)
-                projectNdkVersion.set(extension.ndkVersion ?: "21.1.6352462")
+                projectNdkVersion.set(extension.ndkVersion)
             }
         }
 
