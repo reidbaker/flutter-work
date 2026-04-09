@@ -494,10 +494,11 @@ object FlutterPluginUtils {
 
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
         androidComponents.finalizeDsl { _ ->
-            val extension = project.extensions.findByName("android") as? CommonExtension<*, *, *, *, *, *>
-            val task = project.tasks.named("validateCompileSdkVersion", ValidateCompileSdkVersionTask::class.java).get()
-            task.projectCompileSdk.set(extension?.compileSdk ?: Int.MAX_VALUE)
-            task.projectNdkVersion.set(extension?.ndkVersion ?: "21.1.6352462")
+            val extension = getAndroidExtension(project)
+            project.tasks.named("validateCompileSdkVersion", ValidateCompileSdkVersionTask::class.java).configure {
+                projectCompileSdk.set(extension.compileSdk ?: Int.MAX_VALUE)
+                projectNdkVersion.set(extension.ndkVersion ?: "21.1.6352462")
+            }
         }
 
         // Wire the task to run before compilation.
