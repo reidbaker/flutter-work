@@ -11,7 +11,6 @@ import com.android.build.gradle.internal.dsl.CmakeOptions
 import com.android.build.gradle.internal.dsl.DefaultConfig
 import com.android.builder.model.BuildType
 import com.flutter.gradle.plugins.PluginHandler
-import com.flutter.gradle.tasks.ValidateCompileSdkVersionTask
 import io.mockk.called
 import io.mockk.every
 import io.mockk.mockk
@@ -32,7 +31,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Path
 import java.util.Properties
-import kotlin.io.path.createDirectory
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals

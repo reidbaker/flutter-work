@@ -9,17 +9,14 @@ import com.flutter.gradle.FlutterPluginUtils
 import io.mockk.called
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.slot
 import io.mockk.verify
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
-import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.createDirectory
 
