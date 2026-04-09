@@ -6,6 +6,8 @@ package com.flutter.gradle
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.Variant
+import com.android.build.api.variant.VariantBuilder
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.CmakeOptions
 import com.android.build.gradle.internal.dsl.DefaultConfig
@@ -41,7 +43,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Path
 import java.util.Properties
-import kotlin.io.path.createDirectory
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -580,190 +581,43 @@ class FlutterPluginUtilsTest {
         assertEquals("35", result)
     }
 
-    // detectLowCompileSdkVersionOrNdkVersion
     @Test
-    fun `detectLowCompileSdkVersionOrNdkVersion logs no warnings when no plugins have higher sdk or ndk`(
-        @TempDir tempDir: Path
-    ) {
-        val projectDir = tempDir.resolve("app").toFile()
-
+    fun `detectLowCompileSdkVersionOrNdkVersion registers ValidateCompileSdkVersionTask`() {
         val project = mockk<Project>()
-        val mockLogger = mockk<Logger>()
-        every { project.logger } returns mockLogger
-        every { project.projectDir } returns projectDir
-        val cameraPluginProject = mockk<Project>()
-        val projectActionSlot = slot<Action<Project>>()
-        val cameraPluginProjectActionSlot = slot<Action<Project>>()
-        every { project.afterEvaluate(any<Action<Project>>()) } returns Unit
-        every { project.extensions.findByType(BaseExtension::class.java)!!.compileSdkVersion } returns "android-35"
-        every { project.extensions.findByType(BaseExtension::class.java)!!.ndkVersion } returns "26.3.11579264"
-        every { project.rootProject.findProject(":${cameraDependency["name"]}") } returns cameraPluginProject
-        every { cameraPluginProject.afterEvaluate(capture(cameraPluginProjectActionSlot)) } returns Unit
-        every { cameraPluginProject.extensions.findByType(BaseExtension::class.java)!!.compileSdkVersion } returns "android-35"
-        every { cameraPluginProject.extensions.findByType(BaseExtension::class.java)!!.ndkVersion } returns "26.3.11579264"
+        val taskContainer = mockk<org.gradle.api.tasks.TaskContainer>()
+        val taskProvider = mockk<org.gradle.api.tasks.TaskProvider<com.flutter.gradle.tasks.ValidateCompileSdkVersionTask>>()
+        val preBuildTaskProvider = mockk<org.gradle.api.tasks.TaskProvider<org.gradle.api.Task>>()
 
-        FlutterPluginUtils.detectLowCompileSdkVersionOrNdkVersion(project, listOf(cameraDependency))
+        val androidComponents = mockk<AndroidComponentsExtension<Any, VariantBuilder, Variant>>()
 
-        verify { project.afterEvaluate(capture(projectActionSlot)) }
-        projectActionSlot.captured.execute(project)
-        verify { cameraPluginProject.afterEvaluate(capture(cameraPluginProjectActionSlot)) }
-        cameraPluginProjectActionSlot.captured.execute(cameraPluginProject)
-
-        verify { mockLogger wasNot called }
-    }
-
-    @Test
-    fun `detectLowCompileSdkVersionOrNdkVersion logs warnings when plugins have higher sdk and ndk`(
-        @TempDir tempDir: Path
-    ) {
-        val buildGradleFile =
-            tempDir
-                .resolve("app")
-                .createDirectory()
-                .resolve("build.gradle")
-                .toFile()
-        buildGradleFile.createNewFile()
-        val projectDir = tempDir.resolve("app").toFile()
-
-        val project = mockk<Project>()
-        val mockLogger = mockk<Logger>()
-        every { project.logger } returns mockLogger
-        every { mockLogger.error(any()) } returns Unit
-        every { project.projectDir } returns projectDir
-        val cameraPluginProject = mockk<Project>()
-        val flutterPluginAndroidLifecycleDependencyPluginProject = mockk<Project>()
-        val projectActionSlot = slot<Action<Project>>()
-        val cameraPluginProjectActionSlot = slot<Action<Project>>()
-        val flutterPluginAndroidLifecycleDependencyPluginProjectActionSlot = slot<Action<Project>>()
-        every { project.afterEvaluate(any<Action<Project>>()) } returns Unit
-        every { project.extensions.findByType(BaseExtension::class.java)!!.compileSdkVersion } returns "android-33"
-        every { project.extensions.findByType(BaseExtension::class.java)!!.ndkVersion } returns "24.3.11579264"
-        every { project.rootProject.findProject(":${cameraDependency["name"]}") } returns cameraPluginProject
-        every { project.rootProject.findProject(":${flutterPluginAndroidLifecycleDependency["name"]}") } returns
-            flutterPluginAndroidLifecycleDependencyPluginProject
-        every { cameraPluginProject.afterEvaluate(capture(cameraPluginProjectActionSlot)) } returns Unit
-        every { cameraPluginProject.extensions.findByType(BaseExtension::class.java)!!.compileSdkVersion } returns "android-35"
-        every { cameraPluginProject.extensions.findByType(BaseExtension::class.java)!!.ndkVersion } returns "26.3.11579264"
+        every { project.tasks } returns taskContainer
         every {
-            flutterPluginAndroidLifecycleDependencyPluginProject.afterEvaluate(
-                capture(
-                    flutterPluginAndroidLifecycleDependencyPluginProjectActionSlot
-                )
+            taskContainer.register(
+                "validateCompileSdkVersion",
+                com.flutter.gradle.tasks.ValidateCompileSdkVersionTask::class.java,
+                any<org.gradle.api.Action<com.flutter.gradle.tasks.ValidateCompileSdkVersionTask>>()
             )
-        } returns Unit
+        } returns taskProvider
+
         every {
-            flutterPluginAndroidLifecycleDependencyPluginProject.extensions
-                .findByType(
-                    BaseExtension::class.java
-                )!!
-                .compileSdkVersion
-        } returns "android-34"
-        every {
-            flutterPluginAndroidLifecycleDependencyPluginProject.extensions
-                .findByType(
-                    BaseExtension::class.java
-                )!!
-                .ndkVersion
-        } returns "25.3.11579264"
+            project.extensions.getByType(AndroidComponentsExtension::class.java)
+        } returns androidComponents as AndroidComponentsExtension<*, *, *>
+        every { androidComponents.finalizeDsl(match<(Any) -> Unit> { true }) } returns Unit
 
-        val dependencyList: List<Map<String?, Any?>> =
-            listOf(cameraDependency, flutterPluginAndroidLifecycleDependency)
-        FlutterPluginUtils.detectLowCompileSdkVersionOrNdkVersion(
-            project,
-            dependencyList
-        )
+        every { taskContainer.named("preBuild") } returns preBuildTaskProvider
+        every { preBuildTaskProvider.configure(any()) } returns Unit
 
-        verify { project.afterEvaluate(capture(projectActionSlot)) }
-        projectActionSlot.captured.execute(project)
-        verify { cameraPluginProject.afterEvaluate(capture(cameraPluginProjectActionSlot)) }
-        cameraPluginProjectActionSlot.captured.execute(cameraPluginProject)
-        verify {
-            flutterPluginAndroidLifecycleDependencyPluginProject.afterEvaluate(
-                capture(
-                    flutterPluginAndroidLifecycleDependencyPluginProjectActionSlot
-                )
-            )
-        }
-        flutterPluginAndroidLifecycleDependencyPluginProjectActionSlot.captured.execute(
-            flutterPluginAndroidLifecycleDependencyPluginProject
-        )
+        FlutterPluginUtils.detectLowCompileSdkVersionOrNdkVersion(project, emptyList())
 
         verify {
-            mockLogger.error(
-                "Your project is configured to compile against Android SDK 33, but the " +
-                    "following plugin(s) require to be compiled against a higher Android SDK version:"
+            taskContainer.register(
+                "validateCompileSdkVersion",
+                com.flutter.gradle.tasks.ValidateCompileSdkVersionTask::class.java,
+                any()
             )
         }
-        verify {
-            mockLogger.error(
-                "- ${cameraDependency["name"]} compiles against Android SDK 35"
-            )
-        }
-        verify {
-            mockLogger.error(
-                "- ${flutterPluginAndroidLifecycleDependency["name"]} compiles against Android SDK 34"
-            )
-        }
-        verify {
-            mockLogger.error(
-                """
-                Fix this issue by compiling against the highest Android SDK version (they are backward compatible).
-                Add the following to ${buildGradleFile.path}:
-
-                    android {
-                        compileSdk = 35
-                        ...
-                    }
-                """.trimIndent()
-            )
-        }
-        verify {
-            mockLogger.error(
-                "Your project is configured with Android NDK 24.3.11579264, but the following plugin(s) depend on a different Android NDK version:"
-            )
-        }
-        verify {
-            mockLogger.error(
-                "- ${cameraDependency["name"]} requires Android NDK 26.3.11579264"
-            )
-        }
-        verify {
-            mockLogger.error(
-                "- ${flutterPluginAndroidLifecycleDependency["name"]} requires Android NDK 25.3.11579264"
-            )
-        }
-        verify {
-            mockLogger.error(
-                """
-                Fix this issue by using the highest Android NDK version (they are backward compatible).
-                Add the following to ${buildGradleFile.path}:
-
-                    android {
-                        ndkVersion = "26.3.11579264"
-                        ...
-                    }
-                """.trimIndent()
-            )
-        }
-    }
-
-    @Test
-    fun `detectLowCompileSdkVersionOrNdkVersion throws IllegalArgumentException when plugin has no name`() {
-        val project = mockk<Project>()
-        val projectActionSlot = slot<Action<Project>>()
-        every { project.afterEvaluate(any<Action<Project>>()) } returns Unit
-        every { project.extensions.findByType(BaseExtension::class.java)!!.compileSdkVersion } returns "android-35"
-        every { project.extensions.findByType(BaseExtension::class.java)!!.ndkVersion } returns "26.3.11579264"
-
-        val pluginWithoutName: MutableMap<String?, Any?> = cameraDependency.toMutableMap()
-        pluginWithoutName.remove("name")
-
-        FlutterPluginUtils.detectLowCompileSdkVersionOrNdkVersion(
-            project,
-            listOf(pluginWithoutName)
-        )
-        verify { project.afterEvaluate(capture(projectActionSlot)) }
-        assertThrows<IllegalArgumentException> { projectActionSlot.captured.execute(project) }
+        verify { androidComponents.finalizeDsl(match<(Any) -> Unit> { true }) }
+        verify { taskContainer.named("preBuild") }
     }
 
     enum class DslType { GROOVY, KOTLIN }
