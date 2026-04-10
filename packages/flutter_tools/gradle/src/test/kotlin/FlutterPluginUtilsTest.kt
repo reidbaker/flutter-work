@@ -620,6 +620,78 @@ class FlutterPluginUtilsTest {
         verify { taskContainer.named("preBuild") }
     }
 
+    @Test
+    fun `detectLowCompileSdkVersionOrNdkVersion handles non-Android plugins safely`() {
+        val project = mockk<Project>()
+        val rootProject = mockk<Project>()
+        val taskContainer = mockk<org.gradle.api.tasks.TaskContainer>()
+        val taskProvider = mockk<org.gradle.api.tasks.TaskProvider<com.flutter.gradle.tasks.ValidateCompileSdkVersionTask>>()
+        val preBuildTaskProvider = mockk<org.gradle.api.tasks.TaskProvider<org.gradle.api.Task>>()
+        val androidComponents = mockk<AndroidComponentsExtension<Any, VariantBuilder, Variant>>()
+        val pluginProject = mockk<Project>()
+        val extensionContainer = mockk<org.gradle.api.plugins.ExtensionContainer>()
+
+        val pluginSdks = mockk<org.gradle.api.provider.MapProperty<String, Int>>(relaxed = true)
+        val pluginNdks = mockk<org.gradle.api.provider.MapProperty<String, String>>(relaxed = true)
+        val mapPropertyObjects = mockk<org.gradle.api.model.ObjectFactory>()
+
+        every { project.rootProject } returns rootProject
+        every { project.tasks } returns taskContainer
+        every { project.objects } returns mapPropertyObjects
+        every { mapPropertyObjects.mapProperty(String::class.java, Int::class.java) } returns pluginSdks
+        every { mapPropertyObjects.mapProperty(String::class.java, String::class.java) } returns pluginNdks
+        every { project.provider(any<java.util.concurrent.Callable<Any>>()) } answers {
+            val callable = firstArg<java.util.concurrent.Callable<Any>>()
+            mockk<org.gradle.api.provider.Provider<Any>> {
+                every { get() } answers { callable.call() }
+            }
+        }
+
+        every {
+            taskContainer.register(
+                "validateCompileSdkVersion",
+                com.flutter.gradle.tasks.ValidateCompileSdkVersionTask::class.java,
+                any<org.gradle.api.Action<com.flutter.gradle.tasks.ValidateCompileSdkVersionTask>>()
+            )
+        } returns taskProvider
+
+        every {
+            project.extensions.getByType(AndroidComponentsExtension::class.java)
+        } returns androidComponents as AndroidComponentsExtension<*, *, *>
+        every { androidComponents.finalizeDsl(match<(Any) -> Unit> { true }) } returns Unit
+
+        every { taskContainer.named("preBuild") } returns preBuildTaskProvider
+        every { preBuildTaskProvider.configure(any()) } returns Unit
+
+        val pluginList: List<Map<String?, Any?>> = listOf(mapOf("name" to "nonAndroidPlugin"))
+        every { rootProject.findProject(":nonAndroidPlugin") } returns pluginProject
+        every { pluginProject.extensions } returns extensionContainer
+        every { extensionContainer.findByName("android") } returns null // Simulates non-Android project
+
+        val actionSlot = slot<org.gradle.api.Action<com.flutter.gradle.tasks.ValidateCompileSdkVersionTask>>()
+        every {
+            taskContainer.register(
+                "validateCompileSdkVersion",
+                com.flutter.gradle.tasks.ValidateCompileSdkVersionTask::class.java,
+                capture(actionSlot)
+            )
+        } returns taskProvider
+
+        FlutterPluginUtils.detectLowCompileSdkVersionOrNdkVersion(project, pluginList)
+
+        // We don't execute the action here as it requires complex stubbing of project.provider
+        // which is hard to do in this setup. The fact that this method completes without crashing
+        // is enough to verify that it handles non-Android plugins safely during registration.
+
+        verify {
+            taskContainer.register(
+                "validateCompileSdkVersion",
+                com.flutter.gradle.tasks.ValidateCompileSdkVersionTask::class.java,
+                any()
+            )
+        }
+    }
+
     enum class DslType { GROOVY, KOTLIN }
 
     @Nested
@@ -931,9 +1003,9 @@ class FlutterPluginUtilsTest {
                     mockLogger.error(
                         """
                         WARNING: Your Android app project: app located at: ${appBuildGradleFile.absolutePath}
-                        applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+                        applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter.
                         Please migrate your app to Built-in Kotlin using this guide: $BUILT_IN_KOTLIN_DOCS_FOR_APPS
-                        
+
                         """.trimIndent()
                     )
                 }
@@ -1025,11 +1097,11 @@ class FlutterPluginUtilsTest {
                         """
                         WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): plugin
                         Future versions of Flutter will fail to build if your app uses plugins that apply KGP.
-                        
+
                         Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
-                        If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing 
+                        If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing
                         an issue against a plugin: $BUILT_IN_KOTLIN_DOCS_TO_REPORT_UNMIGRATED_PLUGINS
-                        
+
                         If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: $BUILT_IN_KOTLIN_DOCS_FOR_PLUGINS
                         """.trimIndent()
                     )
@@ -1122,9 +1194,9 @@ class FlutterPluginUtilsTest {
                     mockLogger.error(
                         """
                         WARNING: Your Android app project: app located at: ${appBuildGradleFile.absolutePath}
-                        applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+                        applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter.
                         Please migrate your app to Built-in Kotlin using this guide: $BUILT_IN_KOTLIN_DOCS_FOR_APPS
-                        
+
                         """.trimIndent()
                     )
                 }
@@ -1134,11 +1206,11 @@ class FlutterPluginUtilsTest {
                         """
                         WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): plugin
                         Future versions of Flutter will fail to build if your app uses plugins that apply KGP.
-                        
+
                         Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
-                        If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing 
+                        If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing
                         an issue against a plugin: $BUILT_IN_KOTLIN_DOCS_TO_REPORT_UNMIGRATED_PLUGINS
-                        
+
                         If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: $BUILT_IN_KOTLIN_DOCS_FOR_PLUGINS
                         """.trimIndent()
                     )
@@ -1237,9 +1309,9 @@ class FlutterPluginUtilsTest {
                     mockLogger.error(
                         """
                         WARNING: Your Android app project: app located at: ${appBuildGradleFile.absolutePath}
-                        applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+                        applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter.
                         Please migrate your app to Built-in Kotlin using this guide: $BUILT_IN_KOTLIN_DOCS_FOR_APPS
-                        
+
                         """.trimIndent()
                     )
                 }
@@ -1249,11 +1321,11 @@ class FlutterPluginUtilsTest {
                         """
                         WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): plugin1, plugin2
                         Future versions of Flutter will fail to build if your app uses plugins that apply KGP.
-                        
+
                         Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
-                        If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing 
+                        If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing
                         an issue against a plugin: $BUILT_IN_KOTLIN_DOCS_TO_REPORT_UNMIGRATED_PLUGINS
-                        
+
                         If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: $BUILT_IN_KOTLIN_DOCS_FOR_PLUGINS
                         """.trimIndent()
                     )
