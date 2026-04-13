@@ -645,18 +645,19 @@ object FlutterPluginUtils {
                     val name = requireNotNull(plugin["name"] as? String) { "Missing valid \"name\" property for plugin object: $plugin" }
                     val pluginProject = project.rootProject.findProject(":$name")
                     if (pluginProject != null) {
-                        val androidExtensionWrapper = try {
-                            getAndroidExtension(pluginProject)
-                        } catch (e: IllegalStateException) {
-                            null
+                        val androidExtensionWrapper =
+                            try {
+                                getAndroidExtension(pluginProject)
+                            } catch (e: IllegalStateException) {
+                                null
+                            }
+
+                        pluginSdksMap[name] = androidExtensionWrapper?.compileSdk ?: Int.MAX_VALUE
+
+                        val ndkVersion = androidExtensionWrapper?.ndkVersion ?: extension.ndkVersion
+                        if (ndkVersion != null) {
+                            pluginNdksMap[name] = ndkVersion
                         }
-
-                    pluginSdksMap[name] = androidExtensionWrapper?.compileSdk ?: Int.MAX_VALUE
-
-                    val ndkVersion = androidExtensionWrapper?.ndkVersion ?: extension.ndkVersion
-                    if (ndkVersion != null) {
-                        pluginNdksMap[name] = ndkVersion
-                    }
                     }
                 }
                 pluginCompileSdks.set(pluginSdksMap)
