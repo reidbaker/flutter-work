@@ -123,7 +123,6 @@ class FlutterPluginTest {
         flutterPlugin.apply(project)
 
         verify { project.tasks.register("generateLockfiles", any()) }
-
         val registeredPrintTasks = mutableListOf<String>()
         verify {
             project.tasks.register(capture(registeredPrintTasks), PrintTaskDeferred::class.java, any())
@@ -135,6 +134,8 @@ class FlutterPluginTest {
         assertContains(registeredPrintTasks, "javaVersion")
         assertContains(registeredPrintTasks, "kgpVersion")
         assertContains(registeredPrintTasks, "printBuildVariants")
+
+        verify { project.tasks.register("printNdkVersion", any()) }
     }
 
     @Test
