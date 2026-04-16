@@ -115,4 +115,3 @@ Due to the large number of tests (over 6000 files), they are grouped by category
     - Run a test target: `et test //flutter/impeller:impeller_unittests`
     - Query test targets: `et query targets --testonly`
 - **Speed**: Fast for individual unit tests, Slow for full suites.
-
