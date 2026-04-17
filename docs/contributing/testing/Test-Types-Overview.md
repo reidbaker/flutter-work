@@ -108,7 +108,7 @@ Due to the large number of tests (over 6000 files), they are grouped by category
 - **Documentation**: [Testing-the-engine.md](../../../docs/engine/testing/Testing-the-engine.md)
 - **Run Locally**: Yes, but requires the complete Engine development environment (GN, Ninja, etc.).
 - **Commands**:
-  - **Using `run_tests.py`**:
+  - **Using `run_tests.py` from `engine/src/flutter`**:
     - Run C++ tests: `testing/run_tests.py --type=engine`
     - Run Java tests: `testing/run_tests.py --type=java`
     - Run Dart tests: `testing/run_tests.py --type=dart`
