@@ -58,7 +58,7 @@ Due to the large number of tests (over 6000 files), they are grouped by category
 - **Language**: Dart
 - **Description**: Performance and integration tests run in the Flutter DeviceLab.
 - **Documentation**:
-  - [README.md](dev/devicelab/README.md)
+  - [README.md](../../../dev/devicelab/README.md)
   - [How-to-write-a-memory-test-for-Flutter.md](How-to-write-a-memory-test-for-Flutter.md)
   - [How-to-write-a-render-speed-test-for-Flutter.md](How-to-write-a-render-speed-test-for-Flutter.md)
 - **Run Locally**: Partially. Requires a physical device or emulator and specific environment setup (e.g., `ANDROID_SDK_ROOT`).
@@ -73,7 +73,7 @@ Due to the large number of tests (over 6000 files), they are grouped by category
 - **Language**: Dart
 - **Description**: Performance benchmarks.
 - **Documentation**:
-  - [README.md](dev/devicelab/README.md) (Benchmarks are run as DeviceLab tasks).
+  - [README.md](../../../dev/devicelab/README.md) (Benchmarks are run as DeviceLab tasks).
   - [How-to-write-a-memory-test-for-Flutter.md](How-to-write-a-memory-test-for-Flutter.md)
   - [How-to-write-a-render-speed-test-for-Flutter.md](How-to-write-a-render-speed-test-for-Flutter.md)
 - **Run Locally**: Partially, same requirements as DeviceLab tests.
