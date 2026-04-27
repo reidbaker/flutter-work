@@ -130,188 +130,11 @@ Future<void> run(List<String> arguments, {List<Validation>? validationsForTestin
 
   final List<Validation> validations =
       validationsForTesting ??
-      <Validation>[
-        Validation(
-          'release-branch',
-          'Release branch validation',
-          () => verifyReleaseBranchState(flutterRoot),
-        ),
-        Validation(
-          'target-platform',
-          'TargetPlatform tool/framework consistency',
-          () => verifyTargetPlatform(flutterRoot),
-        ),
-        Validation(
-          'tool-end-to-end',
-          'All tool test files end in _test.dart...',
-          () => verifyToolTestsEndInTestDart(flutterRoot),
-        ),
-        Validation('no-sync-star-async-star', 'No sync*/async*', () async {
-          await verifyNoSyncAsyncStar(flutterPackages);
-          await verifyNoSyncAsyncStar(flutterExamples, minimumMatches: 200);
-        }),
-        Validation(
-          'no-runtime-type',
-          'No runtimeType in toString...',
-          () => verifyNoRuntimeTypeInToString(flutterRoot),
-        ),
-        Validation(
-          'no-checked-mode',
-          'Debug mode instead of checked mode...',
-          () => verifyNoCheckedMode(flutterRoot),
-        ),
-        Validation(
-          'issue-links',
-          'Links for creating GitHub issues...',
-          () => verifyIssueLinks(flutterRoot),
-        ),
-        Validation(
-          'repository-links',
-          'Links to repositories...',
-          () => verifyRepositoryLinks(flutterRoot),
-        ),
-        Validation('no-binaries', 'Unexpected binaries...', () => verifyNoBinaries(flutterRoot)),
-        Validation(
-          'no-trailing-spaces',
-          'Trailing spaces...',
-          () => verifyNoTrailingSpaces(flutterRoot),
-        ),
-        Validation(
-          'spaces-after-flow',
-          'Spaces after flow control statements...',
-          () => verifySpacesAfterFlowControlStatements(flutterRoot),
-        ),
-        Validation('deprecations', 'Deprecations...', () => verifyDeprecations(flutterRoot)),
-        Validation('golden-tags', 'Goldens...', () => verifyGoldenTags(flutterPackages)),
-        Validation(
-          'skip-test-comments',
-          'Skip test comments...',
-          () => verifySkipTestComments(flutterRoot),
-        ),
-        Validation('no-missing-license', 'Licenses...', () => verifyNoMissingLicense(flutterRoot)),
-        Validation('no-test-imports', 'Test imports...', () => verifyNoTestImports(flutterRoot)),
-        Validation(
-          'no-bad-imports-flutter',
-          'Bad imports (framework)...',
-          () => verifyNoBadImportsInFlutter(flutterRoot),
-        ),
-        Validation(
-          'no-bad-imports-tools',
-          'Bad imports (tools)...',
-          () => verifyNoBadImportsInFlutterTools(flutterRoot),
-        ),
-        Validation(
-          'internationalization',
-          'Internationalization...',
-          () => verifyInternationalizations(flutterRoot, dart),
-        ),
-        Validation(
-          'stock-app-localizations',
-          'Localization files of stocks app...',
-          () => verifyStockAppLocalizations(flutterRoot),
-        ),
-        Validation(
-          'integration-timeouts',
-          'Integration test timeouts...',
-          () => verifyIntegrationTestTimeouts(flutterRoot),
-        ),
-        Validation(
-          'null-fields',
-          'null initialized debug fields...',
-          () => verifyNullInitializedDebugExpensiveFields(flutterRoot),
-        ),
-        Validation('taboo', 'Taboo words...', () => verifyTabooDocumentation(flutterRoot)),
-        Validation('lint-kotlin', 'Lint Kotlin files...', () => lintKotlinFiles(flutterRoot)),
-        Validation(
-          'lint-kotlin-templates',
-          'Lint generated Kotlin files from templates...',
-          () => lintKotlinTemplatedFiles(flutterRoot),
-        ),
-        Validation(
-          'update-packages',
-          'Package dependencies...',
-          () => runCommand(flutter, <String>['update-packages'], workingDirectory: flutterRoot),
-        ),
-        Validation('package-allowlist', 'Package Allowlist...', () => _checkConsumerDependencies()),
-        Validation('dart-analysis', 'Dart analysis...', () async {
-          dartAnalyzeResult = await _runFlutterAnalyze(
-            flutterRoot,
-            options: <String>['--flutter-repo', ...passthroughArguments],
-          );
-        }),
-        Validation(
-          'format',
-          'Check formatting of Dart files...',
-          () => runCommand(dart, <String>[
-            '--enable-asserts',
-            path.join(flutterRoot, 'dev', 'tools', 'bin', 'format.dart'),
-          ], workingDirectory: flutterRoot),
-        ),
-        Validation(
-          'private-lints',
-          'Private lints...',
-          () => _verifyPrivateLints(flutterRoot, dartAnalyzeResult),
-        ),
-        Validation(
-          'executable-allowlist',
-          'Executable allowlist...',
-          () => _checkForNewExecutables(),
-        ),
-        Validation(
-          'dart-analysis-watch',
-          'Dart analysis (with --watch)...',
-          () => _runFlutterAnalyze(
-            flutterRoot,
-            failureMessage: 'Dart analyzer failed when --watch was used.',
-            options: <String>['--flutter-repo', '--watch', '--benchmark', ...passthroughArguments],
-          ),
-        ),
-        Validation(
-          'snippets',
-          'Snippet code...',
-          () => runCommand(dart, <String>[
-            '--enable-asserts',
-            path.join(flutterRoot, 'dev', 'bots', 'analyze_snippet_code.dart'),
-            '--verbose',
-          ], workingDirectory: flutterRoot),
-        ),
-        Validation(
-          'code-samples',
-          'Code sample link validation...',
-          () => runCommand(dart, <String>[
-            '--enable-asserts',
-            path.join(flutterRoot, 'dev', 'bots', 'check_code_samples.dart'),
-          ], workingDirectory: flutterRoot),
-        ),
-        Validation(
-          'mega-gallery',
-          'Dart analysis (mega gallery)...',
-          () => _verifyMegaGallery(flutterRoot, dart, passthroughArguments),
-        ),
-        Validation(
-          'gen-defaults-names',
-          'Correct file names in gen_defaults.dart...',
-          () => verifyTokenTemplatesUpdateCorrectFiles(flutterRoot),
-        ),
-        Validation(
-          'gen-defaults-up-to-date',
-          'Material library files are up-to-date with token template files...',
-          () => verifyMaterialFilesAreUpToDateWithTemplateFiles(flutterRoot, dart),
-        ),
-        Validation(
-          'integration-templates',
-          'Up to date integration test template files...',
-          () => verifyIntegrationTestTemplateFiles(flutterRoot),
-        ),
-        Validation(
-          'cross-imports',
-          'Cross-import test validation...',
-          () => runCommand(dart, <String>[
-            '--enable-asserts',
-            path.join(flutterRoot, 'dev', 'bots', 'check_tests_cross_imports.dart'),
-          ], workingDirectory: flutterRoot),
-        ),
-      ];
+      _getValidations(
+        passthroughArguments: passthroughArguments,
+        getDartAnalyzeResult: () => dartAnalyzeResult,
+        onDartAnalyzeResult: (CommandResult? result) => dartAnalyzeResult = result,
+      );
 
   final seenNames = <String>{};
   for (final validation in validations) {
@@ -329,10 +152,18 @@ Future<void> run(List<String> arguments, {List<Validation>? validationsForTestin
       return;
     }
     if (arg.startsWith('--only=')) {
+      if (onlyRules.isNotEmpty) {
+        foundError(<String>['The --only argument must not be used more than once.']);
+        return;
+      }
       onlyRules = arg.substring('--only='.length).split(',');
       continue;
     }
     if (arg.startsWith('--skip=')) {
+      if (skipRules.isNotEmpty) {
+        foundError(<String>['The --skip argument must not be used more than once.']);
+        return;
+      }
       skipRules = arg.substring('--skip='.length).split(',');
       continue;
     }
@@ -369,6 +200,192 @@ Future<void> run(List<String> arguments, {List<Validation>? validationsForTestin
       await validation.callback();
     }
   }
+}
+
+List<Validation> _getValidations({
+  required List<String> passthroughArguments,
+  required CommandResult? Function() getDartAnalyzeResult,
+  required void Function(CommandResult?) onDartAnalyzeResult,
+}) {
+  return <Validation>[
+    Validation(
+      'release-branch',
+      'Release branch validation',
+      () => verifyReleaseBranchState(flutterRoot),
+    ),
+    Validation(
+      'target-platform',
+      'TargetPlatform tool/framework consistency',
+      () => verifyTargetPlatform(flutterRoot),
+    ),
+    Validation(
+      'tool-end-to-end',
+      'All tool test files end in _test.dart...',
+      () => verifyToolTestsEndInTestDart(flutterRoot),
+    ),
+    Validation('no-sync-star-async-star', 'No sync*/async*', () async {
+      await verifyNoSyncAsyncStar(flutterPackages);
+      await verifyNoSyncAsyncStar(flutterExamples, minimumMatches: 200);
+    }),
+    Validation(
+      'no-runtime-type',
+      'No runtimeType in toString...',
+      () => verifyNoRuntimeTypeInToString(flutterRoot),
+    ),
+    Validation(
+      'no-checked-mode',
+      'Debug mode instead of checked mode...',
+      () => verifyNoCheckedMode(flutterRoot),
+    ),
+    Validation(
+      'issue-links',
+      'Links for creating GitHub issues...',
+      () => verifyIssueLinks(flutterRoot),
+    ),
+    Validation(
+      'repository-links',
+      'Links to repositories...',
+      () => verifyRepositoryLinks(flutterRoot),
+    ),
+    Validation('no-binaries', 'Unexpected binaries...', () => verifyNoBinaries(flutterRoot)),
+    Validation(
+      'no-trailing-spaces',
+      'Trailing spaces...',
+      () => verifyNoTrailingSpaces(flutterRoot),
+    ),
+    Validation(
+      'spaces-after-flow',
+      'Spaces after flow control statements...',
+      () => verifySpacesAfterFlowControlStatements(flutterRoot),
+    ),
+    Validation('deprecations', 'Deprecations...', () => verifyDeprecations(flutterRoot)),
+    Validation('golden-tags', 'Goldens...', () => verifyGoldenTags(flutterPackages)),
+    Validation(
+      'skip-test-comments',
+      'Skip test comments...',
+      () => verifySkipTestComments(flutterRoot),
+    ),
+    Validation('no-missing-license', 'Licenses...', () => verifyNoMissingLicense(flutterRoot)),
+    Validation('no-test-imports', 'Test imports...', () => verifyNoTestImports(flutterRoot)),
+    Validation(
+      'no-bad-imports-flutter',
+      'Bad imports (framework)...',
+      () => verifyNoBadImportsInFlutter(flutterRoot),
+    ),
+    Validation(
+      'no-bad-imports-tools',
+      'Bad imports (tools)...',
+      () => verifyNoBadImportsInFlutterTools(flutterRoot),
+    ),
+    Validation(
+      'internationalization',
+      'Internationalization...',
+      () => verifyInternationalizations(flutterRoot, dart),
+    ),
+    Validation(
+      'stock-app-localizations',
+      'Localization files of stocks app...',
+      () => verifyStockAppLocalizations(flutterRoot),
+    ),
+    Validation(
+      'integration-timeouts',
+      'Integration test timeouts...',
+      () => verifyIntegrationTestTimeouts(flutterRoot),
+    ),
+    Validation(
+      'null-fields',
+      'null initialized debug fields...',
+      () => verifyNullInitializedDebugExpensiveFields(flutterRoot),
+    ),
+    Validation('taboo', 'Taboo words...', () => verifyTabooDocumentation(flutterRoot)),
+    Validation('lint-kotlin', 'Lint Kotlin files...', () => lintKotlinFiles(flutterRoot)),
+    Validation(
+      'lint-kotlin-templates',
+      'Lint generated Kotlin files from templates...',
+      () => lintKotlinTemplatedFiles(flutterRoot),
+    ),
+    Validation(
+      'update-packages',
+      'Package dependencies...',
+      () => runCommand(flutter, <String>['update-packages'], workingDirectory: flutterRoot),
+    ),
+    Validation('package-allowlist', 'Package Allowlist...', () => _checkConsumerDependencies()),
+    Validation('dart-analysis', 'Dart analysis...', () async {
+      final CommandResult result = await _runFlutterAnalyze(
+        flutterRoot,
+        options: <String>['--flutter-repo', ...passthroughArguments],
+      );
+      onDartAnalyzeResult(result);
+    }),
+    Validation(
+      'format',
+      'Check formatting of Dart files...',
+      () => runCommand(dart, <String>[
+        '--enable-asserts',
+        path.join(flutterRoot, 'dev', 'tools', 'bin', 'format.dart'),
+      ], workingDirectory: flutterRoot),
+    ),
+    Validation(
+      'private-lints',
+      'Private lints...',
+      () => _verifyPrivateLints(flutterRoot, getDartAnalyzeResult()),
+    ),
+    Validation('executable-allowlist', 'Executable allowlist...', () => _checkForNewExecutables()),
+    Validation(
+      'dart-analysis-watch',
+      'Dart analysis (with --watch)...',
+      () => _runFlutterAnalyze(
+        flutterRoot,
+        failureMessage: 'Dart analyzer failed when --watch was used.',
+        options: <String>['--flutter-repo', '--watch', '--benchmark', ...passthroughArguments],
+      ),
+    ),
+    Validation(
+      'snippets',
+      'Snippet code...',
+      () => runCommand(dart, <String>[
+        '--enable-asserts',
+        path.join(flutterRoot, 'dev', 'bots', 'analyze_snippet_code.dart'),
+        '--verbose',
+      ], workingDirectory: flutterRoot),
+    ),
+    Validation(
+      'code-samples',
+      'Code sample link validation...',
+      () => runCommand(dart, <String>[
+        '--enable-asserts',
+        path.join(flutterRoot, 'dev', 'bots', 'check_code_samples.dart'),
+      ], workingDirectory: flutterRoot),
+    ),
+    Validation(
+      'mega-gallery',
+      'Dart analysis (mega gallery)...',
+      () => _verifyMegaGallery(flutterRoot, dart, passthroughArguments),
+    ),
+    Validation(
+      'gen-defaults-names',
+      'Correct file names in gen_defaults.dart...',
+      () => verifyTokenTemplatesUpdateCorrectFiles(flutterRoot),
+    ),
+    Validation(
+      'gen-defaults-up-to-date',
+      'Material library files are up-to-date with token template files...',
+      () => verifyMaterialFilesAreUpToDateWithTemplateFiles(flutterRoot, dart),
+    ),
+    Validation(
+      'integration-templates',
+      'Up to date integration test template files...',
+      () => verifyIntegrationTestTemplateFiles(flutterRoot),
+    ),
+    Validation(
+      'cross-imports',
+      'Cross-import test validation...',
+      () => runCommand(dart, <String>[
+        '--enable-asserts',
+        path.join(flutterRoot, 'dev', 'bots', 'check_tests_cross_imports.dart'),
+      ], workingDirectory: flutterRoot),
+    ),
+  ];
 }
 
 // TESTS
@@ -2887,7 +2904,17 @@ bool _isGeneratedPluginRegistrant(File file) {
 }
 
 Future<void> _verifyPrivateLints(String flutterRoot, CommandResult? dartAnalyzeResult) async {
-  if (dartAnalyzeResult == null || dartAnalyzeResult.exitCode == 0) {
+  if (dartAnalyzeResult == null) {
+    foundError(<String>[
+      'The "dart-analysis" rule must run before "private-lints".',
+      'Ensure "dart-analysis" is not skipped and is included in --only if used.',
+    ]);
+    return;
+  }
+  // Only run the private lints when the code is free of type errors. The
+  // lints are easier to write when they can assume, for example, there is no
+  // inheritance cycles.
+  if (dartAnalyzeResult.exitCode == 0) {
     final rules = <AnalyzeRule>[
       noDoubleClamp,
       noStopwatches,

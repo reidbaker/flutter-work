@@ -462,4 +462,66 @@ void main() {
 
     expect(result, contains('Unknown rule "invalid" passed to --only.'));
   });
+
+  test('analyze.dart - --only flag with multiple comma-separated values', () async {
+    final executed = <String>[];
+    final dummyValidations = <Validation>[
+      Validation('rule1', 'Rule 1', () async {
+        executed.add('rule1');
+      }),
+      Validation('rule2', 'Rule 2', () async {
+        executed.add('rule2');
+      }),
+      Validation('rule3', 'Rule 3', () async {
+        executed.add('rule3');
+      }),
+    ];
+
+    await capture(() async {
+      await run(<String>['--only=rule1,rule3'], validationsForTesting: dummyValidations);
+    });
+
+    expect(executed, <String>['rule1', 'rule3']);
+  });
+
+  test('analyze.dart - --skip flag with multiple comma-separated values', () async {
+    final executed = <String>[];
+    final dummyValidations = <Validation>[
+      Validation('rule1', 'Rule 1', () async {
+        executed.add('rule1');
+      }),
+      Validation('rule2', 'Rule 2', () async {
+        executed.add('rule2');
+      }),
+      Validation('rule3', 'Rule 3', () async {
+        executed.add('rule3');
+      }),
+    ];
+
+    await capture(() async {
+      await run(<String>['--skip=rule1,rule3'], validationsForTesting: dummyValidations);
+    });
+
+    expect(executed, <String>['rule2']);
+  });
+
+  test('analyze.dart - --only flag passed multiple times errors', () async {
+    final dummyValidations = <Validation>[Validation('rule1', 'Rule 1', () async {})];
+
+    final String result = await capture(() async {
+      await run(<String>['--only=rule1', '--only=rule1'], validationsForTesting: dummyValidations);
+    }, shouldHaveErrors: true);
+
+    expect(result, contains('The --only argument must not be used more than once.'));
+  });
+
+  test('analyze.dart - --skip flag passed multiple times errors', () async {
+    final dummyValidations = <Validation>[Validation('rule1', 'Rule 1', () async {})];
+
+    final String result = await capture(() async {
+      await run(<String>['--skip=rule1', '--skip=rule1'], validationsForTesting: dummyValidations);
+    }, shouldHaveErrors: true);
+
+    expect(result, contains('The --skip argument must not be used more than once.'));
+  });
 }
