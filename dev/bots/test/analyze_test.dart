@@ -397,4 +397,69 @@ void main() {
       '╚═══════════════════════════════════════════════════════════════════════════════\n',
     );
   });
+
+  test('analyze.dart - help flag', () async {
+    final String result = await capture(() async {
+      await run(<String>['-h']);
+    });
+    expect(result, contains('Usage: dart dev/bots/analyze.dart [arguments]'));
+    expect(result, contains('Options:'));
+    expect(result, contains('Available rules:'));
+  });
+
+  test('analyze.dart - --only flag', () async {
+    final executed = <String>[];
+    final dummyValidations = <Validation>[
+      Validation('rule1', 'Rule 1', () async {
+        executed.add('rule1');
+      }),
+      Validation('rule2', 'Rule 2', () async {
+        executed.add('rule2');
+      }),
+    ];
+
+    await capture(() async {
+      await run(<String>['--only=rule1'], validationsForTesting: dummyValidations);
+    });
+
+    expect(executed, <String>['rule1']);
+  });
+
+  test('analyze.dart - --skip flag', () async {
+    final executed = <String>[];
+    final dummyValidations = <Validation>[
+      Validation('rule1', 'Rule 1', () async {
+        executed.add('rule1');
+      }),
+      Validation('rule2', 'Rule 2', () async {
+        executed.add('rule2');
+      }),
+    ];
+
+    await capture(() async {
+      await run(<String>['--skip=rule1'], validationsForTesting: dummyValidations);
+    });
+
+    expect(executed, <String>['rule2']);
+  });
+
+  test('analyze.dart - --only and --skip mutually exclusive', () async {
+    final dummyValidations = <Validation>[Validation('rule1', 'Rule 1', () async {})];
+
+    final String result = await capture(() async {
+      await run(<String>['--only=rule1', '--skip=rule1'], validationsForTesting: dummyValidations);
+    }, shouldHaveErrors: true);
+
+    expect(result, contains('Cannot use both --only and --skip at the same time.'));
+  });
+
+  test('analyze.dart - invalid rule name', () async {
+    final dummyValidations = <Validation>[Validation('rule1', 'Rule 1', () async {})];
+
+    final String result = await capture(() async {
+      await run(<String>['--only=invalid'], validationsForTesting: dummyValidations);
+    }, shouldHaveErrors: true);
+
+    expect(result, contains('Unknown rule "invalid" passed to --only.'));
+  });
 }
