@@ -32,22 +32,21 @@ class CheckBackticksRelativePathsRule extends SkillRule {
 
     for (final match in matches) {
       final String textInBackticks = match.group(1)!;
+      final String normalizedText = textInBackticks.replaceAll(r'\', '/');
 
       for (final String validPath in valid2SegmentPaths) {
-        if (textInBackticks.startsWith(validPath)) {
-          if (textInBackticks.startsWith('/')) {
-            continue;
-          }
-
+        if (normalizedText.startsWith('$validPath/')) {
           final fullPath = textInBackticks;
-          final String correctedPath = path.join(relativePathToRoot, fullPath);
+          final String correctedPath = path
+              .join(relativePathToRoot, fullPath)
+              .replaceAll(r'\', '/');
 
           errors.add(
             ValidationError(
               ruleId: name,
               file: 'SKILL.md',
               message:
-                  'Found root-relative path "$fullPath" in backticks. Suggested fix: [${path.basename(fullPath)}]($correctedPath)',
+                  'Found root-relative path "$fullPath" in backticks. Suggested fix: [${path.basename(normalizedText)}]($correctedPath)',
               severity: severity,
             ),
           );

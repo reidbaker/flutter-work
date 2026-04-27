@@ -89,4 +89,18 @@ void main() {
     );
     expect(isValid, isTrue, reason: 'Skills validation failed. See above for details.');
   });
+
+  test('CheckBackticksRelativePathsRule handles Windows paths', () async {
+    final rule = CheckBackticksRelativePathsRule({'dev/tools'}, '/Users/reidbaker/flutter-work');
+
+    final context = SkillContext(
+      directory: Directory('/Users/reidbaker/flutter-work/.agents/skills/test-skill'),
+      rawContent: r'Use `dev\tools\test.dart` to test.',
+    );
+
+    final List<ValidationError> errors = await rule.validate(context);
+
+    expect(errors, hasLength(1));
+    expect(errors.first.message, contains('[test.dart](../../../dev/tools/test.dart)'));
+  });
 }
