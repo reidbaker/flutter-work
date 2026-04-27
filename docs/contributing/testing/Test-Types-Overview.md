@@ -29,7 +29,7 @@ Due to the large number of tests (over 6000 files), they are grouped by category
 ### 2. Tool Tests
 - **Location**: `packages/flutter_tools/test/`
 - **Language**: Dart
-- **Description**: Unit tests for the `flutter` command-line tool.
+- **Description**: Where the flutter tool tests live.
 - **Documentation**: [README.md](../../../packages/flutter_tools/README.md)
 - **Run Locally**: Yes.
 - **Commands**:
