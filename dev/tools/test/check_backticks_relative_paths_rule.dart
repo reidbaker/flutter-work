@@ -34,34 +34,23 @@ class CheckBackticksRelativePathsRule extends SkillRule {
       final String textInBackticks = match.group(1)!;
 
       for (final String validPath in valid2SegmentPaths) {
-        final pathRegex = RegExp('\\b($validPath/[^\\s\\`\\}\\n\\r]*)');
-        final Iterable<RegExpMatch> pathMatches = pathRegex.allMatches(textInBackticks);
-
-        for (final pathMatch in pathMatches) {
-          final String fullPath = pathMatch.group(1)!;
-          final int start = pathMatch.start;
-
-          var isRootRelative = true;
-          if (start > 0) {
-            final String before = textInBackticks.substring(start - 1, start);
-            if (before == '/' || before == '.' || before == r'\') {
-              isRootRelative = false;
-            }
+        if (textInBackticks.startsWith(validPath)) {
+          if (textInBackticks.startsWith('/')) {
+            continue;
           }
 
-          if (isRootRelative) {
-            final String correctedPath = path.join(relativePathToRoot, fullPath);
+          final fullPath = textInBackticks;
+          final String correctedPath = path.join(relativePathToRoot, fullPath);
 
-            errors.add(
-              ValidationError(
-                ruleId: name,
-                file: 'SKILL.md',
-                message:
-                    'Found root-relative path "$fullPath" in backticks. Suggested fix: [${path.basename(fullPath)}]($correctedPath)',
-                severity: severity,
-              ),
-            );
-          }
+          errors.add(
+            ValidationError(
+              ruleId: name,
+              file: 'SKILL.md',
+              message:
+                  'Found root-relative path "$fullPath" in backticks. Suggested fix: [${path.basename(fullPath)}]($correctedPath)',
+              severity: severity,
+            ),
+          );
         }
       }
     }
