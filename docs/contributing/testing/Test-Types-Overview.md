@@ -4,7 +4,8 @@ This file lists and categorizes the test files found in the Flutter codebase.
 Due to the large number of tests (over 6000 files), they are grouped by category and location.
 
 ## Runtime Length
-- **Fast**: < 10 seconds (Unit tests, simple widget tests)
+- **Sub-second**: < 1 second (Simple unit tests, e.g., in `dev/tools`)
+- **Fast**: < 10 seconds (Most unit tests, simple widget tests)
 - **Medium**: 10-60 seconds (Complex widget tests, some tool tests)
 - **Slow**: > 60 seconds (Integration tests, devicelab tasks, analyze script)
 
@@ -38,22 +39,7 @@ Due to the large number of tests (over 6000 files), they are grouped by category
 - **Speed**: Fast (< 10 seconds) for general shard tests, Medium to Slow for integration tests.
 - **Count**: ~500+ files.
 
-### 3. Integration Tests
-- **Location**: `dev/integration_tests/` and `packages/integration_test/`
-- **Language**: Dart, Kotlin, C++, etc.
-- **Description**: Tests that run on devices or emulators, testing full app behavior.
-- **Documentation**:
-  - [README.md](../../../dev/integration_tests/README.md)
-  - [How-to-write-a-render-speed-test-for-Flutter.md](How-to-write-a-render-speed-test-for-Flutter.md)
-- **Run Locally**: Yes, but requires a target device or emulator (Android, iOS, or desktop).
-- **Commands**:
-  - Run an integration test: `bin/flutter test integration_test/foo_test.dart` (Run from the package root).
-  - Run a driver test: `flutter drive -t <test> --driver <driver>`
-  - Example: `flutter drive -t lib/keyboard_resize.dart --driver test_driver/keyboard_resize_test.dart` (Run from the specific test directory).
-- **Speed**: Slow (> 60 seconds).
-- **Count**: ~1800+ files in `dev/integration_tests`.
-
-### 4. DeviceLab Tests
+### 3. DeviceLab Tests
 - **Location**: `dev/devicelab/`
 - **Language**: Dart
 - **Description**: Performance and integration tests run in the Flutter DeviceLab.
@@ -68,7 +54,7 @@ Due to the large number of tests (over 6000 files), they are grouped by category
 - **Speed**: Slow (> 60 seconds).
 - **Count**: ~100+ files.
 
-### 5. Benchmarks
+### 4. Benchmarks
 - **Location**: `dev/benchmarks/`
 - **Language**: Dart
 - **Description**: Performance benchmarks.
@@ -81,7 +67,7 @@ Due to the large number of tests (over 6000 files), they are grouped by category
 - **Speed**: Slow (> 60 seconds).
 - **Count**: ~160+ files.
 
-### 6. Analysis and Lint Tests
+### 5. Analysis and Lint Tests
 - **Key Files**:
   - `dev/bots/analyze.dart`: Enforces style and structure rules.
   - `dev/bots/test.dart`: Main test orchestrator.
@@ -91,21 +77,21 @@ Due to the large number of tests (over 6000 files), they are grouped by category
   - Run analysis: `bin/cache/dart-sdk/bin/dart --enable-asserts dev/bots/analyze.dart` (Verified locally, takes > 60 seconds for full run).
 - **Speed**: Slow (> 60 seconds) for full execution.
 
-### 7. Package Tests
+### 6. Package Tests
 - **Location**: `packages/*/test/` (excluding `flutter` and `flutter_tools`)
 - **Language**: Dart
-- **Description**: Tests for support packages like `flutter_test`, `flutter_localizations`, etc.
+- **Description**: Tests for packages. Any folder with a `pubspec.yaml` file is considered a package and may contain a `test/` directory.
 - **Documentation**: [Running-and-writing-tests.md](Running-and-writing-tests.md)
 - **Run Locally**: Yes.
 - **Commands**:
   - Run tests in a package: `bin/flutter test packages/<package_name>/test`
 - **Speed**: Fast (< 10 seconds) for individual tests.
 
-### 8. Engine Tests
-- **Location**: `engine/src` (located in the `engine` directory)
+### 7. Engine Tests
+- **Location**: `engine/src` (in the [flutter/engine](https://github.com/flutter/engine) repository)
 - **Language**: C++, Dart, Java, Kotlin, etc.
 - **Description**: Tests for the Flutter engine.
-- **Documentation**: [Testing-the-engine.md](../../../docs/engine/testing/Testing-the-engine.md)
+- **Documentation**: [Testing-the-engine.md](../../engine/testing/Testing-the-engine.md)
 - **Run Locally**: Yes, but requires the complete Engine development environment (GN, Ninja, etc.).
 - **Commands**:
   - **Using `run_tests.py` from `engine/src/flutter`**:
